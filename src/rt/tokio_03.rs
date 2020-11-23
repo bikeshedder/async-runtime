@@ -11,4 +11,7 @@ impl crate::Runtime for Runtime {
     fn sleep(&self, duration: Duration) -> BoxFuture<'static, ()> {
         Box::pin(tokio_03::time::sleep(duration))
     }
+    fn spawn(&self, future: BoxFuture<'static, ()>) {
+        tokio_03::spawn(future);
+    }
 }

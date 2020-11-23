@@ -35,6 +35,18 @@ impl fmt::Display for TimeoutError {
 
 impl std::error::Error for TimeoutError {}
 
+/// Error returned by `spawn`
+#[derive(Debug)]
+pub struct SpawnError(Box<dyn std::error::Error>);
+
+impl fmt::Display for SpawnError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
+impl std::error::Error for SpawnError {}
+
 /// Result of the [`timeout`] function
 pub type Timeout<'a, T> = BoxFuture<'a, Result<T, TimeoutError>>;
 
@@ -42,6 +54,8 @@ pub type Timeout<'a, T> = BoxFuture<'a, Result<T, TimeoutError>>;
 pub trait Runtime: Sync + Send {
     /// Waits until duration has elapsed.
     fn sleep(&self, duration: Duration) -> BoxFuture<'static, ()>;
+    /// Push future onto the executer that will run it to completion.
+    fn spawn(&self, future: BoxFuture<'static, ()>);
 }
 
 /// Require a Future to complete before the specified duration has elapsed.

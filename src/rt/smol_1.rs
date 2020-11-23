@@ -13,4 +13,7 @@ impl crate::Runtime for Runtime {
             smol_1::Timer::after(duration).await;
         })
     }
+    fn spawn(&self, future: BoxFuture<'static, ()>) {
+        smol_1::spawn(future).detach();
+    }
 }
