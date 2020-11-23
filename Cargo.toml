@@ -1,0 +1,23 @@
+[package]
+name = "async-runtime"
+description = "Crate for runtime agnostic async code"
+version = "0.1.0"
+authors = ["Michael P. Jung <michael.jung@terreon.de>"]
+edition = "2018"
+
+[dependencies]
+tokio_02 = { package = "tokio", version = "0.2", features = ["time"], optional = true }
+tokio_03 = { package = "tokio", version = "0.3", features = ["macros", "rt-multi-thread"] }
+async-std_1 = { package = "async-std", version = "1", optional = true }
+smol_1 = { package = "smol", version = "1", optional = true }
+futures = "0.3"
+
+[dev-dependencies]
+tokio_02 = { package = "tokio", version = "0.2", features = ["macros", "rt-threaded"] }
+tokio_03 = { package = "tokio", version = "0.3", features = ["macros", "rt-multi-thread"] }
+
+[features]
+with-tokio_02 = [ "tokio_02" ]
+with-tokio_03 = [ "tokio_03/time" ]
+with-async-std_1 = [ "async-std_1" ]
+with-smol_1 = [ "smol_1" ]
