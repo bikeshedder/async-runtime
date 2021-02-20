@@ -40,6 +40,17 @@ fn test_tokio_03() {
         .unwrap();
 }
 
+#[cfg(feature = "with-tokio_1")]
+#[test]
+fn test_tokio_1() {
+    let tokio_rt = tokio_1::runtime::Runtime::new().unwrap();
+    use async_runtime::rt::tokio_1::Runtime;
+    let rt = Runtime::default();
+    tokio_rt
+        .block_on(async move { run_tests(&rt).await })
+        .unwrap();
+}
+
 #[cfg(feature = "with-async-std_1")]
 #[test]
 fn test_async_std_1() {

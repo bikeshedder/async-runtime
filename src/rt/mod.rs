@@ -6,6 +6,9 @@ pub mod tokio_02;
 #[cfg(feature = "with-tokio_03")]
 pub mod tokio_03;
 
+#[cfg(feature = "with-tokio_1")]
+pub mod tokio_1;
+
 #[cfg(feature = "with-async-std_1")]
 pub mod async_std_1;
 
