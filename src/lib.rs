@@ -8,11 +8,12 @@
 //! specific runtime.
 #![warn(missing_docs)]
 
-use std::fmt;
 use std::future::Future;
 use std::time::Duration;
+use std::{fmt, task::Poll};
 
-use futures::future::BoxFuture;
+use pin_project_lite::pin_project;
+use futures::{future::BoxFuture};
 
 pub mod rt;
 
@@ -47,9 +48,6 @@ impl fmt::Display for SpawnError {
 
 impl std::error::Error for SpawnError {}
 
-/// Result of the [`timeout`] function
-pub type Timeout<'a, T> = BoxFuture<'a, Result<T, TimeoutError>>;
-
 /// Runtime trait
 pub trait Runtime: Sync + Send {
     /// Waits until duration has elapsed.
@@ -58,24 +56,41 @@ pub trait Runtime: Sync + Send {
     fn spawn(&self, future: BoxFuture<'static, ()>);
 }
 
+pin_project! {
+    /// Result of the [`timeout`] function
+    pub struct Timeout<T, F: Future<Output = T>> {
+        #[pin]
+        future: F,
+        sleep: BoxFuture<'static, ()>,
+    }
+}
+
+impl<T, F: Future<Output = T>> Future for Timeout<T, F> {
+    type Output = Result<T, TimeoutError>;
+    fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> Poll<Self::Output> {
+        let this = self.project();
+        match this.future.poll(cx) {
+            Poll::Ready(ok) => Poll::Ready(Ok(ok)),
+            Poll::Pending => this
+                .sleep
+                .as_mut()
+                .poll(cx)
+                .map(|_| Err(TimeoutError::Timeout)),
+        }
+    }
+}
+
 /// Require a Future to complete before the specified duration has elapsed.
 ///
 /// If the future completes before the duration has elapsed, then the
 /// completed value is returned. Otherwise, an error is returned and the
 /// future is canceled.
-pub fn timeout<T: Future + Send + 'static>(
-    runtime: &dyn Runtime,
-    duration: Duration,
-    future: T,
-) -> Timeout<T::Output> {
-    let sleep_fut = runtime.sleep(duration);
-    Box::pin(async move {
-        // FIXME Reimplement `select` without depending on tokio or any
-        // other runtime. We only need support to poll two futures so
-        // no macro should be needed.
-        tokio_03::select! {
-            output = future => Ok(output),
-            _ = sleep_fut => Err(TimeoutError::Timeout),
-        }
-    })
+pub fn timeout<'a, T, F>(runtime: &dyn Runtime, duration: Duration, future: F) -> Timeout<T, F>
+where
+    F: Future<Output = T>,
+{
+    Timeout {
+        future,
+        sleep: runtime.sleep(duration),
+    }
 }
