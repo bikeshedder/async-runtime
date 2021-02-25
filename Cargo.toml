@@ -12,7 +12,6 @@ tokio_03 = { package = "tokio", version = "0.3", features = ["macros", "rt-multi
 tokio_1 = { package = "tokio", version = "1", features = ["macros", "rt-multi-thread"], optional = true }
 async-std_1 = { package = "async-std", version = "1", optional = true }
 smol_1 = { package = "smol", version = "1", optional = true }
-futures = "0.3"
 
 [dev-dependencies]
 tokio_02 = { package = "tokio", version = "0.2", features = ["macros", "rt-threaded"] }

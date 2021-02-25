@@ -1,7 +1,7 @@
 //! This module contains the async-std 1 implementation of the Runtime trait.
 use std::time::Duration;
 
-use futures::future::BoxFuture;
+use crate::BoxFuture;
 
 /// async-std 1 runtime
 #[derive(Default, Clone)]

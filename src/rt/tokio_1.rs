@@ -1,7 +1,7 @@
 //! This module contains the Tokio 1 implementation of the Runtime trait.
 use std::time::Duration;
 
-use futures::future::BoxFuture;
+use crate::BoxFuture;
 
 /// Tokio 1 runtime
 #[derive(Default, Clone, Copy)]

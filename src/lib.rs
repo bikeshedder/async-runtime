@@ -9,13 +9,18 @@
 #![warn(missing_docs)]
 
 use std::future::Future;
+use std::pin::Pin;
 use std::time::Duration;
 use std::{fmt, task::Poll};
 
 use pin_project_lite::pin_project;
-use futures::{future::BoxFuture};
 
 pub mod rt;
+
+/// An owned dynamically typed [`Future`] for use in cases where you can't
+/// statically type your result or need to add some indirection.
+/// (This type alias is a 1:1 copy of the one in the `futures` crate.)
+pub type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
 
 /// Error returned by `timeout`
 #[derive(Debug, PartialEq, Eq)]
