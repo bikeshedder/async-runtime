@@ -9,6 +9,13 @@ async fn run_tests(rt: &dyn Runtime) -> Result<(), Box<dyn std::error::Error>> {
         timeout(rt, Duration::from_millis(10), async {}).await,
         Ok(())
     );
+    // Test normal case (timeout=0)
+    // This test ensures that the passed future has a higher priority
+    // than the timeout.
+    assert_eq!(
+        timeout(rt, Duration::from_millis(0), async {}).await,
+        Ok(())
+    );
     // Test timeout case
     let sleep = rt.sleep(Duration::from_millis(1000));
     assert_eq!(
